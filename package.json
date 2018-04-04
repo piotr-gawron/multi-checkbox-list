@@ -1,0 +1,35 @@
+{
+  "name": "multi-checkbox-list",
+  "version": "0.1.0",
+  "description": "A simple checkbox list in plain JavaScript. No external libraries needed.",
+  "main": "dist/multi-checkbox-list.js",
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "test": "mocha --recursive test/js",
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha -- --recursive test/js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/piotr-gawron/multi-checkbox-list.git"
+  },
+  "keywords": [
+    "checkbox",
+    "list"
+  ],
+  "author": "Piotr Gawron",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/piotr-gawron/multi-checkbox-list/issues"
+  },
+  "homepage": "https://github.com/piotr-gawron/multi-checkbox-list#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "browserify": "^16.1.1",
+    "chai": "^4.1.2",
+    "clean-css-cli": "^4.1.11",
+    "istanbul": "^0.4.5",
+    "jsdom": "^11.7.0",
+    "mocha": "^5.0.5"
+  }
+}

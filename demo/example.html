@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="../dist/multi-checkbox-list.js"></script>
+    <link rel="stylesheet" type="text/css" href="../dist/multi-checkbox-list.css"/>
+
+    <script type="text/javascript">
+      //<![CDATA[
+
+      function init() {
+        var checkbox = new MultiCheckboxList(document.getElementById("elementId"));
+        checkbox.addListener("select", function (element) {
+          alert("Element selected: " + element);
+        });
+        checkbox.addListener("deselect", function (element) {
+          alert("Element deselected: " + element);
+        });
+      }
+
+      //]]>
+    </script>
+
+</head>
+<body onload="init()">
+<select id="elementId">
+    <option value="o1">Option 1</option>
+    <option value="o2">Option 2</option>
+    <option value="o3">Option 3</option>
+</select>
+</body>
+</html>
