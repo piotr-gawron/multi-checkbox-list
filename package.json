@@ -1,6 +1,6 @@
 {
   "name": "multi-checkbox-list",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A simple checkbox list in plain JavaScript. No external libraries needed.",
   "main": "dist/multi-checkbox-list.js",
   "scripts": {
