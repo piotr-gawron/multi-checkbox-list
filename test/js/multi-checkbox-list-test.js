@@ -90,6 +90,27 @@ describe('MultiCheckboxList', function () {
       let container = document.getElementsByClassName(CONTAINER_CLASS)[0];
       assert.ok(container.innerHTML.indexOf("Selected options") < 0, "Selected options list available, but shouldn't be");
     });
+
+    it('create with predefined elements', () => {
+      let domObject = getFixture(FIXTURE_EMPTY_SELECT);
+      let checkboxList = new MultiCheckboxList(domObject, {
+        entries: [{
+          name: 'Option desc',
+          value: 'option_desc',
+          selected: true
+        }, {
+          name: 'Option desc 2',
+          value: 'option_desc2',
+          selected: false
+        },
+        ]
+      });
+      let container = document.getElementsByClassName(CONTAINER_CLASS)[0];
+      assert.ok(container.innerHTML.indexOf("Option desc 2") >= 0, "Second option doesn't exist");
+      assert.equal(1, checkboxList.getSelected().length);
+      assert.equal('option_desc', checkboxList.getSelected()[0]);
+    });
+
   });
 
   describe('getSelected', function () {

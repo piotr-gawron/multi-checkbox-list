@@ -22,6 +22,7 @@ class MultiCheckboxList {
     options.listTitle = options.listTitle !== undefined ? options.listTitle : 'Available options';
     options.selectedList = options.selectedList !== undefined ? options.selectedList : false;
     options.selectedTitle = options.selectedTitle !== undefined ? options.selectedTitle : "Selected options";
+    options.entries = options.entries !== undefined ? options.entries : [];
 
     this.options = options;
 
@@ -69,10 +70,13 @@ class MultiCheckboxList {
       this.selectedOptionListDiv.classList.add(SELECTED_LIST_CLASS);
       selectedContainer.appendChild(this.selectedOptionListDiv);
       this.addListener("select", function (element) {
-        let selectedDiv = document.createElement("div");
-        selectedDiv.innerHTML = element.name;
-        selectedDiv.classList.add(SELECTED_ENTRY_CLASS);
-        self.selectedOptionListDiv.appendChild(selectedDiv);
+        self.addSelectedEntry(element);
+        for (let i = 0; i < self.options.entries.length; i++) {
+          let option = self.options.entries[i];
+          if (option.value === element.value) {
+            option.selected = true;
+          }
+        }
       });
       this.addListener("deselect", function (element) {
         let nodes = self.selectedOptionListDiv.childNodes;
@@ -81,43 +85,72 @@ class MultiCheckboxList {
             self.selectedOptionListDiv.removeChild(nodes[i]);
           }
         }
+        for (let i = 0; i < self.options.entries.length; i++) {
+          let option = self.options.entries[i];
+          if (option.value === element.value) {
+            option.selected = false;
+          }
+        }
       });
     }
   }
 
+  addSelectedEntry(entry) {
+    if (this.options.selectedList) {
+      let selectedDiv = document.createElement("div");
+      selectedDiv.innerHTML = entry.name;
+      selectedDiv.classList.add(SELECTED_ENTRY_CLASS);
+      this.selectedOptionListDiv.appendChild(selectedDiv);
+    }
+  }
+
   addCheckboxes(htmlOptions) {
-    let self = this;
+    for (let i = 0; i < this.options.entries.length; i++) {
+      let option = this.options.entries[i];
+      this.optionListDiv.appendChild(this.createCheckboxEntry(option.value, option.name, option.selected));
+    }
     for (let i = 0; i < htmlOptions.length; i++) {
       let option = htmlOptions[i];
-      let checkboxDivContainer = document.createElement('div');
-      checkboxDivContainer.classList.add(ENTRY_CLASS);
-
-      let checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.value = option.value;
-      checkbox.onchange = function () {
-        let name;
-        for (let i = 0; i < checkbox.parentNode.childNodes.length; i++) {
-          let node = checkbox.parentNode.childNodes[i];
-          if (node.nodeName.toLowerCase() === "div") {
-            name = node.innerHTML;
-          }
-        }
-        if (this.checked) {
-          self.callListeners('select', {value: this.value, name: name});
-        } else {
-          self.callListeners('deselect', {value: this.value, name: name});
-        }
-      };
-
-      checkboxDivContainer.appendChild(checkbox);
-
-      let description = document.createElement('div');
-      description.innerHTML = option.innerHTML;
-      checkboxDivContainer.appendChild(description);
-
-      this.optionListDiv.appendChild(checkboxDivContainer)
+      let value = option.value;
+      let name = option.innerHTML;
+      this.options.entries.push({value: value, name: name, selected: false});
+      this.optionListDiv.appendChild(this.createCheckboxEntry(value, name))
     }
+  }
+
+  createCheckboxEntry(value, name, selected) {
+    let self = this;
+    let checkboxDivContainer = document.createElement('div');
+    checkboxDivContainer.classList.add(ENTRY_CLASS);
+
+    let checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = value;
+    if (selected) {
+      checkbox.checked = true;
+      self.addSelectedEntry({value: value, name: name});
+    }
+    checkbox.onchange = function () {
+      let name;
+      for (let i = 0; i < checkbox.parentNode.childNodes.length; i++) {
+        let node = checkbox.parentNode.childNodes[i];
+        if (node.nodeName.toLowerCase() === "div") {
+          name = node.innerHTML;
+        }
+      }
+      if (this.checked) {
+        self.callListeners('select', {value: this.value, name: name});
+      } else {
+        self.callListeners('deselect', {value: this.value, name: name});
+      }
+    };
+
+    checkboxDivContainer.appendChild(checkbox);
+
+    let description = document.createElement('div');
+    description.innerHTML = name;
+    checkboxDivContainer.appendChild(description);
+    return checkboxDivContainer;
   }
 
   getSelected() {
