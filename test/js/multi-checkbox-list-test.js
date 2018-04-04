@@ -16,6 +16,8 @@ const FIXTURE_ONE_OPTION_SELECT = '<select>' +
 
 const CONTAINER_CLASS = 'multi-checkbox-list-container';
 
+const SELECTED_ENTRY_CLASS = 'multi-checkbox-list-selected-entry';
+
 describe('MultiCheckboxList', function () {
 
   let getFixture = function (fixture) {
@@ -70,6 +72,24 @@ describe('MultiCheckboxList', function () {
       let container = document.getElementsByClassName(CONTAINER_CLASS)[0];
       assert.ok(container.innerHTML.indexOf("Option 1") >= 0, "First option doesn't exist");
     });
+    it('create selected options list', () => {
+      let domObject = getFixture(FIXTURE_ONE_OPTION_SELECT);
+      new MultiCheckboxList(domObject, {selectedList: true});
+      let container = document.getElementsByClassName(CONTAINER_CLASS)[0];
+      assert.ok(container.innerHTML.indexOf("Selected options") >= 0, "Selected options list not available");
+    });
+    it('create selected options list with custom title', () => {
+      let domObject = getFixture(FIXTURE_ONE_OPTION_SELECT);
+      new MultiCheckboxList(domObject, {selectedList: true, selectedTitle: "TEST title"});
+      let container = document.getElementsByClassName(CONTAINER_CLASS)[0];
+      assert.ok(container.innerHTML.indexOf("TEST title") >= 0, "Selected options list not available");
+    });
+    it('don\'t create selected options list', () => {
+      let domObject = getFixture(FIXTURE_ONE_OPTION_SELECT);
+      new MultiCheckboxList(domObject, {selectedList: false});
+      let container = document.getElementsByClassName(CONTAINER_CLASS)[0];
+      assert.ok(container.innerHTML.indexOf("Selected options") < 0, "Selected options list available, but shouldn't be");
+    });
   });
 
   describe('getSelected', function () {
@@ -82,6 +102,19 @@ describe('MultiCheckboxList', function () {
 
       assert.equal(1, multiCheckboxList.getSelected().length, 'Element wasn\'t selected');
     });
+  });
+
+  it('check visible selected options', () => {
+    let domObject = getFixture(FIXTURE_TWO_OPTIONS_SELECT);
+    new MultiCheckboxList(domObject, {selectedList: true});
+
+    let checkboxes = getCheckboxes();
+    checkboxes[0].click();
+    checkboxes[1].click();
+
+    assert.equal(2, document.getElementsByClassName(SELECTED_ENTRY_CLASS).length, 'Select element isn\'t visible');
+    checkboxes[0].click();
+    assert.equal(1, document.getElementsByClassName(SELECTED_ENTRY_CLASS).length, 'Select element shouldn\'t be visible');
   });
 
   describe('listeners', function () {

@@ -1,7 +1,15 @@
 const CONTAINER_CLASS = 'multi-checkbox-list-container';
-const LIST_TITLE_CLASS = 'multi-checkbox-list-title';
+
+const LIST_CLASS = 'multi-checkbox-list-list';
+
+const ENTRY_LIST_TITLE_CLASS = 'multi-checkbox-list-title';
 const ENTRY_CLASS = 'multi-checkbox-list-entry';
-const LIST_CLASS = 'multi-checkbox-list-entry-list';
+const ENTRY_LIST_CLASS = 'multi-checkbox-list-entry-list';
+
+const SELECTED_TITLE_CLASS = 'multi-checkbox-list-selected-title';
+const SELECTED_ENTRY_CLASS = 'multi-checkbox-list-selected-entry';
+const SELECTED_LIST_CLASS = 'multi-checkbox-list-selected-entry-list';
+
 
 class MultiCheckboxList {
   constructor(selector, options = {}) {
@@ -11,7 +19,9 @@ class MultiCheckboxList {
   }
 
   setOptions(options) {
-    options.listTitle = options.listTitle ? options.listTitle : 'Available options';
+    options.listTitle = options.listTitle !== undefined ? options.listTitle : 'Available options';
+    options.selectedList = options.selectedList !== undefined ? options.selectedList : false;
+    options.selectedTitle = options.selectedTitle !== undefined ? options.selectedTitle : "Selected options";
 
     this.options = options;
 
@@ -23,21 +33,56 @@ class MultiCheckboxList {
   }
 
   buildGui(selectElement) {
+    let self = this;
     selectElement.style.display = 'none';
 
     this.containerDiv = document.createElement('div');
     this.containerDiv.classList.add(CONTAINER_CLASS);
     selectElement.parentNode.insertBefore(this.containerDiv, selectElement);
 
+    let listContainer = document.createElement('div');
+    listContainer.classList.add(LIST_CLASS);
+
+    this.containerDiv.appendChild(listContainer);
+
     this.headerListDiv = document.createElement('div');
     this.headerListDiv.innerHTML = this.options.listTitle;
-    this.headerListDiv.classList.add(LIST_TITLE_CLASS);
-    this.containerDiv.appendChild(this.headerListDiv);
+    this.headerListDiv.classList.add(ENTRY_LIST_TITLE_CLASS);
+    listContainer.appendChild(this.headerListDiv);
 
     this.optionListDiv = document.createElement('div');
-    this.optionListDiv.classList.add(LIST_CLASS);
-    this.containerDiv.appendChild(this.optionListDiv);
+    this.optionListDiv.classList.add(ENTRY_LIST_CLASS);
+    listContainer.appendChild(this.optionListDiv);
 
+    if (this.options.selectedList) {
+      let selectedContainer = document.createElement('div');
+      selectedContainer.classList.add(LIST_CLASS);
+
+      this.containerDiv.appendChild(selectedContainer);
+
+      this.selectedHeaderListDiv = document.createElement('div');
+      this.selectedHeaderListDiv.innerHTML = this.options.selectedTitle;
+      this.selectedHeaderListDiv.classList.add(SELECTED_TITLE_CLASS);
+      selectedContainer.appendChild(this.selectedHeaderListDiv);
+
+      this.selectedOptionListDiv = document.createElement('div');
+      this.selectedOptionListDiv.classList.add(SELECTED_LIST_CLASS);
+      selectedContainer.appendChild(this.selectedOptionListDiv);
+      this.addListener("select", function (element) {
+        let selectedDiv = document.createElement("div");
+        selectedDiv.innerHTML = element.name;
+        selectedDiv.classList.add(SELECTED_ENTRY_CLASS);
+        self.selectedOptionListDiv.appendChild(selectedDiv);
+      });
+      this.addListener("deselect", function (element) {
+        let nodes = self.selectedOptionListDiv.childNodes;
+        for (let i = nodes.length - 1; i >= 0; i--) {
+          if (nodes[i].innerHTML === element.name) {
+            self.selectedOptionListDiv.removeChild(nodes[i]);
+          }
+        }
+      });
+    }
   }
 
   addCheckboxes(htmlOptions) {
@@ -51,10 +96,17 @@ class MultiCheckboxList {
       checkbox.type = 'checkbox';
       checkbox.value = option.value;
       checkbox.onchange = function () {
+        let name;
+        for (let i = 0; i < checkbox.parentNode.childNodes.length; i++) {
+          let node = checkbox.parentNode.childNodes[i];
+          if (node.nodeName.toLowerCase() === "div") {
+            name = node.innerHTML;
+          }
+        }
         if (this.checked) {
-          self.callListeners('select', this.value);
+          self.callListeners('select', {value: this.value, name: name});
         } else {
-          self.callListeners('deselect', this.value);
+          self.callListeners('deselect', {value: this.value, name: name});
         }
       };
 

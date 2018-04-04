@@ -8,7 +8,7 @@
       //<![CDATA[
 
       function init() {
-        var checkbox = new MultiCheckboxList(document.getElementById("elementId"));
+        var checkbox = new MultiCheckboxList(document.getElementById("elementId"), {selectedList: true});
         checkbox.addListener("select", function (element) {
           alert("Element selected: " + element);
         });
