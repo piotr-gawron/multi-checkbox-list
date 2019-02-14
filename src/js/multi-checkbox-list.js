@@ -139,9 +139,9 @@ class MultiCheckboxList {
         }
       }
       if (this.checked) {
-        self.callListeners('select', {value: this.value, name: name});
+        return self.callListeners('select', {value: this.value, name: name});
       } else {
-        self.callListeners('deselect', {value: this.value, name: name});
+        return self.callListeners('deselect', {value: this.value, name: name});
       }
     };
 
@@ -176,9 +176,11 @@ class MultiCheckboxList {
     if (this.listeners[type] === undefined) {
       throw new Error('Unknown listener type: ' + type);
     }
+    let results = [];
     for (let i = 0; i < this.listeners[type].length; i++) {
-      this.listeners[type][i](element);
+      results.push(this.listeners[type][i](element));
     }
+    return Promise.all(results);
   }
 }
 

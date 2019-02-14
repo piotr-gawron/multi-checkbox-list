@@ -139,19 +139,54 @@ describe('MultiCheckboxList', function () {
   });
 
   describe('listeners', function () {
-    it('select', () => {
-      let domObject = getFixture(FIXTURE_TWO_OPTIONS_SELECT);
-      let multiCheckboxList = new MultiCheckboxList(domObject);
+    describe('select', () => {
+      it('synchronous code', () => {
+        let domObject = getFixture(FIXTURE_TWO_OPTIONS_SELECT);
+        let multiCheckboxList = new MultiCheckboxList(domObject);
 
-      let elementSelected = false;
-      multiCheckboxList.addListener("select", function () {
-        elementSelected = true;
+        let elementSelected = false;
+        multiCheckboxList.addListener("select", function () {
+          elementSelected = true;
+        });
+
+        let checkbox = getCheckboxes()[0];
+        checkbox.click();
+
+        assert.ok(elementSelected, "Select listener wasn't called when expected");
       });
+      it('async code', () => {
+        let domObject = getFixture(FIXTURE_TWO_OPTIONS_SELECT);
+        let multiCheckboxList = new MultiCheckboxList(domObject);
 
-      let checkbox = getCheckboxes()[0];
-      checkbox.click();
+        let elementSelected = 0;
+        for (let i = 0; i < 10; i++) {
+          multiCheckboxList.addListener("select", function () {
+            return new Promise(function (resolve) {
+              elementSelected++;
+              resolve();
+            });
+          });
+        }
 
-      assert.ok(elementSelected, "Select listener wasn't called when expected");
+        let checkbox = getCheckboxes()[0];
+        checkbox.click();
+
+        assert.equal(10, elementSelected, "Select listener wasn't called when expected");
+      });
+      it('rejected promise', () => {
+        let domObject = getFixture(FIXTURE_TWO_OPTIONS_SELECT);
+        let multiCheckboxList = new MultiCheckboxList(domObject);
+
+        multiCheckboxList.addListener("deselect", function () {
+          return Promise.reject();
+        });
+
+        let checkbox = getCheckboxes()[0];
+        return checkbox.onchange().then(function () {
+          assert.fail();
+        }, function () {
+        });
+      });
     });
     it('deselect', () => {
       let domObject = getFixture(FIXTURE_TWO_OPTIONS_SELECT);
